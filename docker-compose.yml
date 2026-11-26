@@ -1,0 +1,43 @@
+services:
+  node-stats-api:
+    build:
+      context: ./node-stats-api
+      dockerfile: Dockerfile
+    container_name: interseguro-node-stats-api
+    ports:
+      - "${NODE_PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:-interseguro-coding-challenge-super-secret-key-2024}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      AUTH_USERNAME: ${AUTH_USERNAME:-interseguro}
+      AUTH_PASSWORD: ${AUTH_PASSWORD:-challenge2024}
+      DIAGONAL_EPSILON: ${DIAGONAL_EPSILON:-1e-9}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  go-matrix-api:
+    build:
+      context: ./go-matrix-api
+      dockerfile: Dockerfile
+    container_name: interseguro-go-matrix-api
+    ports:
+      - "${GO_PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+      STATS_API_URL: http://node-stats-api:3000
+      JWT_SECRET: ${JWT_SECRET:-interseguro-coding-challenge-super-secret-key-2024}
+      JWT_EXPIRES_IN_HOURS: ${JWT_EXPIRES_IN_HOURS:-24}
+      AUTH_USERNAME: ${AUTH_USERNAME:-interseguro}
+      AUTH_PASSWORD: ${AUTH_PASSWORD:-challenge2024}
+      HTTP_TIMEOUT_SECONDS: ${HTTP_TIMEOUT_SECONDS:-10}
+    depends_on:
+      node-stats-api:
+        condition: service_healthy
+    restart: unless-stopped
