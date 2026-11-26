@@ -1,0 +1,25 @@
+# Dependencias y compilados de Node.js
+node_modules/
+dist/
+coverage/
+npm-debug.log*
+
+# Binarios, pruebas y vendor local de Go
+*.exe
+*.test
+*.out
+go-matrix-api/vendor/
+
+# Variables de entorno locales
+.env
+.env.*
+!.env.example
+
+# Documento original del enunciado (no publicar en repositorio remoto)
+*.pdf
+
+# Archivos del sistema e IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
