@@ -27,6 +27,39 @@ Cliente ──(2. POST /api/v1/matrices/qr + Bearer JWT)──►│  Valida mat
 
 ---
 
+## Despliegue en Vivo (Render)
+
+Ambos microservicios se encuentran desplegados en **Render** (plan gratuito; la primera petición tras inactividad puede tardar ~30–50 s mientras inicia el contenedor):
+
+- **API Principal (`go-matrix-api`):** `https://interseguro-go-matrix-api.onrender.com`
+- **API de Estadísticas (`node-stats-api`):** `https://interseguro-node-stats-api-oy73.onrender.com`
+
+### Credenciales de prueba (JWT)
+- **Endpoint de autenticación:** `POST https://interseguro-go-matrix-api.onrender.com/api/v1/auth/token`
+- **Usuario:** `interseguro`
+- **Contraseña:** `challenge2024`
+
+```bash
+# 1. Obtener token JWT
+curl -X POST https://interseguro-go-matrix-api.onrender.com/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"username":"interseguro","password":"challenge2024"}'
+
+# 2. Factorización QR + Estadísticas (Go -> Node.js)
+curl -X POST https://interseguro-go-matrix-api.onrender.com/api/v1/matrices/qr \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN_JWT>" \
+  -d '{"matrix":[[1,2],[3,4],[5,6]]}'
+
+# 3. Rotación 90° + Estadísticas
+curl -X POST https://interseguro-go-matrix-api.onrender.com/api/v1/matrices/rotate \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN_JWT>" \
+  -d '{"matrix":[[1,2,3],[4,5,6]],"direction":"clockwise"}'
+```
+
+---
+
 ## Decisiones Técnicas y de Diseño
 
 1. **Resolución de Factorización QR y Rotación de Matriz:**
